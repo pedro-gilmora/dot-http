@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "outDir": "dist",
     "moduleResolution": "node",
     "strict": true,
     "skipDefaultLibCheck": true,
@@ -10,7 +11,7 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strictPropertyInitialization": false,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -27,6 +28,7 @@
     "**/*.ts",
   ],
   "exclude": [
-    "node_modules/**"
+    "node_modules/**",
+    "test/**"
   ]
 }
