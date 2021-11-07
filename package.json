@@ -1,0 +1,28 @@
+{
+  "name": "@pedro.gilmora/dyn-req",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A TS/JS HTTP REST API client with dynamical self-constructive URL",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "pedro.gilmora@outlook.es",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.0",
+    "@types/jest": "^27.0.2",
+    "jest": "^27.3.1",
+    "jest-fetch-mock": "^3.0.3",
+    "jsdom": "^18.0.1",
+    "node-ts": "^5.1.2",
+    "ts-jest": "^27.0.7"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
+  "dependencies": {
+    "@types/jsdom": "^16.2.13"
+  }
+}
