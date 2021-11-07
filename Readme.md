@@ -1,4 +1,4 @@
-# 🧙‍♂️ **HTTP-Call**: a dynamical dot syntax HTTP-client for REST
+# 🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
 
 **Table of content**:
 - [💁‍♂️ Why?](#️-why)
