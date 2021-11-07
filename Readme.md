@@ -1,12 +1,12 @@
 # 🧙‍♂️ **HTTP-Call**: a dynamical dot syntax HTTP-client for REST
 
-- [🧙‍♂️ **Dyn-Request**: a dynamical dotted-object syntax http-client for REST](#️-dyn-request-a-dynamical-dotted-object-syntax-http-client-for-rest)
-  - [💁‍♂️ Why?](#️-why)
-  - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
-    - [📝 In the beginning...](#-in-the-beginning)
-    - [⚡ With Callback approach](#-with-callback-approach)
-    - [🍬 With `async`/`await` approach with query parameters...](#-with-asyncawait-approach-with-query-parameters)
-    - [💥 Error capture](#-error-capture)
+**Table of content**:
+- [💁‍♂️ Why?](#️-why)
+- [🔨 Let's make it work easy](#-lets-make-it-work-easy)
+  - [📝 In the beginning...](#-in-the-beginning)
+  - [⚡ With Callback approach](#-with-callback-approach)
+  - [🍬 With `async`/`await` approach with query parameters...](#-with-asyncawait-approach-with-query-parameters)
+  - [💥 Error capture](#-error-capture)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create **dynamical self-constructive** HTTP client?
@@ -88,7 +88,7 @@ We'll get this
 
 <br/>
 
-  ### 🍬 With `async`/`await` approach with query parameters...
+  ### 🍬 With `async`/`await` approach and query parameters...
 
 Query parameters objects will be serialized as query string.
 ```ts
