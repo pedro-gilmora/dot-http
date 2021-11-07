@@ -1,8 +1,8 @@
 {
-  "name": "@pedro.gilmora/dyn-req",
-  "version": "1.0.0",
+  "name": "@pedro.gilmora/http-call",
+  "version": "1.0.1",
   "type": "module",
-  "description": "A TS/JS HTTP REST API client with dynamical self-constructive URL",
+  "description": "A Typescript dynamical dot-syntax HTTP-client for REST",
   "main": "index.js",
   "scripts": {
     "test": "jest"
@@ -24,5 +24,22 @@
   },
   "dependencies": {
     "@types/jsdom": "^16.2.13"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedro-gilmora/http-call.git"
+  },
+  "keywords": [
+    "dot-syntax",
+    "dynamical",
+    "typescript",
+    "self-constructive"
+  ],
+  "bugs": {
+    "url": "https://github.com/pedro-gilmora/http-call/issues"
+  },
+  "homepage": "https://github.com/pedro-gilmora/http-call#readme"
 }
