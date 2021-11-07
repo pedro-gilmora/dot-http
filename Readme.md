@@ -138,7 +138,7 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 ### 💥 Error capture
 
-You can easily handle errors like this (using the same [creation context]()). `FetchError` might to the rescue in case you need it
+You can easily handle errors like this (using the same [creation context](#-in-the-beginning)). `FetchError` might to the rescue in case you need it
 
 ```ts
 try {
