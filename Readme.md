@@ -1,4 +1,4 @@
-# 🧙‍♂️ **Dyn-Request**: a dynamical dotted-object syntax http-client for REST
+# 🧙‍♂️ **HTTP-Call**: a dynamical dot syntax HTTP-client for REST
 
 - [🧙‍♂️ **Dyn-Request**: a dynamical dotted-object syntax http-client for REST](#️-dyn-request-a-dynamical-dotted-object-syntax-http-client-for-rest)
   - [💁‍♂️ Why?](#️-why)
