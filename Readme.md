@@ -9,7 +9,7 @@
   - [💥 Error capture](#-error-capture)
 
 ## 💁‍♂️ Why? 
-I just love self-constructive objects. So, why not to create **dynamical self-constructive** HTTP client?
+I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
 
 
 >https://user-images.githubusercontent.com/33942331/140660876-2eae5e31-2772-47c9-b3dd-d612a33014b5.mp4
