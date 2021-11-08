@@ -1,6 +1,6 @@
 # 🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
 
-This packages relies on `fetch` API
+>This packages relies on `fetch` API
 
 **Table of content**:
 - [💁‍♂️ Why?](#️-why)
