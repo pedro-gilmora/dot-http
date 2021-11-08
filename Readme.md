@@ -1,16 +1,17 @@
 # 🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
 
 **Table of content**:
-- [💁‍♂️ Why?](#️-why)
-- [🔨 Let's make it work easy](#-lets-make-it-work-easy)
-  - [📝 In the beginning...](#-in-the-beginning)
-  - [🌈 Types...](#-types)
-  - [⚡ With Callback approach](#-with-callback-approach)
-  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
-  - [💥 Error capture](#-error-capture)
-  - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
-  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
-- [To do next: API](#to-do-next-api)
+- [🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST](#️-http-call-a-dynamical--self-constructive--dot-syntax-http-client-for-rest)
+  - [💁‍♂️ Why?](#️-why)
+  - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
+    - [📝 In the beginning...](#-in-the-beginning)
+    - [🌈 Types...](#-types)
+    - [⚡ With Callback approach](#-with-callback-approach)
+    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
+    - [💥 Error capture](#-error-capture)
+    - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
+    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
+  - [To do next: API](#to-do-next-api)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
@@ -22,11 +23,9 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 👇Here we go...
 
 
-<br/>
 <hr/>
 
 ## 🔨 Let's make it work easy
-<br/>
 
 ### 📝 In the beginning...
 ```ts
@@ -45,7 +44,6 @@ And there was light...
 ``` 
 https://my-json-server.typicode.com/typicode/demo/posts
 ```
-<br/>
 
 ### 🌈 Types...
 
@@ -64,12 +62,9 @@ export interface UserPost extends Post{
   user: User
 }
 ```
-<br/>
 <hr/>
-<br/>
 
 ### ⚡ With Callback approach
-<br/>
 
 While we do this...
 ```ts
@@ -117,14 +112,11 @@ We'll get this
 </table>
 
 
-<br/>
 <hr/>
-<br/>
 
 
 ### 🍬 With `async`/`await` approach and query parameters...
 
-<br/>
 
 Query parameters objects will be serialized as query string.
 ```ts
@@ -170,7 +162,6 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 </td>
 </tr>
 </table>
-<br/>
 
 ### 💥 Error capture
 
@@ -185,7 +176,6 @@ try {
         await notifyError("We couldn't contact the server", /*timeout*/3500);
 }
 ```
-<br/>
 
 ### 🔩 BTW... we can transform typed results
 
