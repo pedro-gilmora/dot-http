@@ -29,7 +29,7 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 ### 📝 In the beginning...
 ```ts
-import { HttpCall } from "dyn-request";
+import { HttpCall } from "@pedro.gilmora\http-call";
 
 const 
     $api = HttpCall.create({ baseUrl: `https://my-json-server.typicode.com` }),
