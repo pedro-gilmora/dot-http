@@ -24,26 +24,31 @@ it('Should fetch typed result with callback', function () {
     $endpointBase.get<Post[]>().then(posts => expect(posts).toHaveLength(3))
 })
 
+declare function transformPost(r: Post): UserPost;
+
 it('Should fetch typed result with async/await and generate query params', async function () {
     const d = new Date();
-    const posts = await $endpointBase.get<Post[]>({ a: 'b', b: 2, c: true, d, e: null }, {
+
+    const query = { a: 'b', b: 2, c: true, d, e: null };
+
+    const posts = await $endpointBase[1].get<Post>(query, {
         onSend({ url }) {
-            const builtinUrl = endpointTestPath + `?a=b&b=2&c=true&d=${encodeURIComponent(d.toJSON())}&e=`;
+            const builtinUrl = endpointTestPath + `/1?a=b&b=2&c=true&d=${encodeURIComponent(d.toJSON())}&e=`;
             expect(url).toBe(builtinUrl);
             console.log(url)
         }
     });
-    expect(posts).toHaveLength(3)
+    expect(posts).toStrictEqual({"id": 1, "title": "Post 1"})
 });
 
 it('Should post data', async function () {
     const post = await $endpointBase.post<Post>({ title: 'test' });
-    expect(post).toStrictEqual({ id: 4, title: 'test' })
+    expect(post).toStrictEqual({ id: 4, title: 'test' });
 });
 
 it('Should delete data', function () {
     const id = 1;
-    expect($endpointBase[id].delete<void>()).resolves.toStrictEqual({})
+    expect($endpointBase[id].delete<void>()).resolves.toStrictEqual({});
 });
 
 it('Should fail on 404 with async/await', async function () {
@@ -53,7 +58,7 @@ it('Should fail on 404 with async/await', async function () {
         expect(error instanceof FetchError).toBeTruthy();
         let _err = error as FetchError;
         expect(_err.code).toBe(404);
-        console.log(_err)
+        console.log(JSON.parse(_err.description))
     }
 });
 
