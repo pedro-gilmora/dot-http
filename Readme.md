@@ -33,8 +33,8 @@ import { HttpCall } from "@pedro.gilmora\http-call";
 
 const 
     $api = HttpCall.create({ baseUrl: `https://my-json-server.typicode.com` }),
-    paramRestProp = 'posts',
-    $endpointBase = $api.typicode.demo[ paramRestProp ];
+    restPathParamProp = 'posts',
+    $endpointBase = $api.typicode.demo[ restPathParamProp ];
 
 ...
 
@@ -179,13 +179,13 @@ try {
 
 ### 🔩 BTW... we can transform typed results
 
->Consider to not specify generic-type for result in HTTP verb method, transform hook will infer types for you 
+>Consider to not specify generic-type for result in HTTP verb methods, `transform` hook will help infer types for you by specifying parameters and return types 
 ```ts
 const user = { id: -1, userName: 'admin' };
 const posts: UserPost[] = await $endpointBase.get(undefined, 
   {
     transform(posts: Post[]){
-      //returns UserPost[]
+      //returns (Post & {user: User})[] which is compatible with UserPost[] 
       return posts.map(post => Object.assign(post, {user}));
     }
   }
