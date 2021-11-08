@@ -1,6 +1,6 @@
 {
   "name": "@pedro.gilmora/http-call",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "description": "A Typescript dynamical dot-syntax HTTP-client for REST",
   "main": "index.js",
