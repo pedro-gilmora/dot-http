@@ -5,7 +5,7 @@ export interface Post {
 
 export interface User {
   id: number;
-  userName: string;
+  name: string;
 }
 
 export interface UserPost extends Post{

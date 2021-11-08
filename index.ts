@@ -16,19 +16,16 @@ export type HttpCallInitOf<T, TransformedType = unknown> = RequestInit & Defautl
   transform?: (v: T) => TransformedType
 };
 
-
 export type HttpCallerInstance = {  
   get<T, TransformedType = T>(data?: Record<string, any>, init?: HttpCallInitOf<T,TransformedType>): Promise<TransformedType>;
-  get<T, TransformedT = T>(query?: any, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
   post<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
-  put<T>(data?: T, init?: HttpCallInitOf<T>): Promise<T>;
-  delete<TOut>(query?: any, init?: HttpCallInit): Promise<TOut>;
+  put<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
+  delete<T, TransformedType = T>(data?: Record<string, any>, init?: HttpCallInitOf<T,TransformedType>): Promise<TransformedType>;
   setOptions(arg: any): HttpCallerInstance;
   $path: string;
 } & {
   [x: string|number]: HttpCallerInstance
 };
-
 
 const throttleDetect = /\$Throttle.*?\((.*?)\)/gm;
 

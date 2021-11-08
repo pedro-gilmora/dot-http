@@ -11,7 +11,7 @@
     - [💥 Error capture](#-error-capture)
     - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
-    - [To do next: API](#to-do-next-api)
+  - [To do next: API](#to-do-next-api)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
@@ -24,6 +24,7 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 
 <br/>
+<hr/>
 
 ## 🔨 Let's make it work easy
 <br/>
@@ -64,8 +65,12 @@ export interface UserPost extends Post{
   user: User
 }
 ```
+<br/>
+<hr/>
+<br/>
 
 ### ⚡ With Callback approach
+<br/>
 
 While we do this...
 ```ts
@@ -74,7 +79,7 @@ $endpointBase.get<Post[]>().then(console.log);
 We'll get this
 <table>
 <tr>
-<td>
+<td align="right">
   
   Url
 
@@ -86,10 +91,8 @@ We'll get this
 </td>
 </tr>
 <tr>
-<td>
-  
-  Response
-  
+<td align="right" valign="top">  
+  Response  
 </td>
 <td>
 
@@ -114,9 +117,15 @@ We'll get this
 </tr>
 </table>
 
+
+<br/>
+<hr/>
 <br/>
 
-  ### 🍬 With `async`/`await` approach and query parameters...
+
+### 🍬 With `async`/`await` approach and query parameters...
+
+<br/>
 
 Query parameters objects will be serialized as query string.
 ```ts
@@ -133,7 +142,7 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 <table>
 <tr>
-<td>
+<td align=right>
   
   Url
 
@@ -145,12 +154,12 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 </td>
 </tr>
 <tr>
-<td>
+<td align=right valign=top >
   
   Response
   
 </td>
-<td>
+<td valign="top">
 
   ```json
 {
@@ -168,43 +177,47 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 You can easily handle errors like this (using the same [creation context](#-in-the-beginning)). `FetchError` might to the rescue in case you need it
 
+
 ```ts
 try {
     await $api.another.missing.endpoint.post({id:1, title: 'test'});
 } catch (error) {
     if(error instanceof FetchError && error.code === 404)
-        notifyError("We couldn't contact the server");
+        await notifyError("We couldn't contact the server", /*timeout*/3500);
 }
 ```
 <br/>
 
 ### 🔩 BTW... we can transform typed results
 
-While we do this...
+>Consider to not specify generic-type for result in HTTP verb method, transform hook will infer types for you 
 ```ts
 const user = { id: -1, userName: 'admin' };
-const posts = await $endpointBase.get(undefined, {
-  transform(posts: Post[]){
-    return posts.map(post => Object.assign(post, {user}) as UserPost);
+const posts: UserPost[] = await $endpointBase.get(undefined, 
+  {
+    transform(posts: Post[]){
+      //returns UserPost[]
+      return posts.map(post => Object.assign(post, {user}));
+    }
   }
-});
+);
 ```
 We'll get this
 <table>
 <tr>
-<td>
+<td align=right>
   
   Url
 
 </td>
 <td>
 
-  `https://my-json-server.typicode.com/typicode/demo/posts`
+  **`GET: `**`https://my-json-server.typicode.com/typicode/demo/posts`
 
 </td>
 </tr>
 <tr>
-<td>
+<td align=right valign=top>
   
   Response
   
@@ -215,15 +228,27 @@ We'll get this
 [
     {
         "id": 1,
-        "title": "Post 1"
+        "title": "Post 1",
+        "user": { 
+          "id": -1, 
+          "name": "admin" 
+        }
     },
     {
         "id": 2,
-        "title": "Post 2"
+        "title": "Post 2",
+        "user": { 
+          "id": -1, 
+          "name": "admin" 
+        }
     },
     {
         "id": 3,
-        "title": "Post 3"
+        "title": "Post 3",
+        "user": { 
+          "id": -1, 
+          "name": "admin" 
+        }
     }
 ]
 ```
@@ -251,7 +276,7 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 <table>
 <tr>
-<td>
+<td align=right>
   
   Url
 
@@ -263,7 +288,7 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 </td>
 </tr>
 <tr>
-<td>
+<td align=right valign=top>
   
   Response
   
@@ -281,4 +306,4 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 </tr>
 </table>
 
-### To do next: API
+## To do next: API

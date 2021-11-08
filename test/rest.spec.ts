@@ -64,10 +64,11 @@ it('Should fail on 404 with async/await', async function () {
 
 it('Should transform response with type check', async function () {
     const newPost = { title: 'test' } as Post;
-    const post = await $endpointBase.post(newPost, {
+    const user: User = { id: -1, name: 'admin'};
+    const post: UserPost = await $endpointBase.post(newPost, {
         transform(post){
-            return Object.assign(post, {user: {} as User}) as UserPost; 
+            return Object.assign(post, {user}); 
         }
     });
-    expect(post).toStrictEqual({ id: 4, title: 'test', user: {} })
+    expect(post).toStrictEqual({ id: 4, title: 'test', user })
 });
