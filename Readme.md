@@ -1,17 +1,16 @@
 # 🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
 
 **Table of content**:
-- [🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST](#️-http-call-a-dynamical--self-constructive--dot-syntax-http-client-for-rest)
-  - [💁‍♂️ Why?](#️-why)
-  - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
-    - [📝 In the beginning...](#-in-the-beginning)
-    - [🌈 Types...](#-types)
-    - [⚡ With Callback approach](#-with-callback-approach)
-    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
-    - [💥 Error capture](#-error-capture)
-    - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
-    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
-  - [To do next: API](#to-do-next-api)
+- [💁‍♂️ Why?](#️-why)
+- [🔨 Let's make it work easy](#-lets-make-it-work-easy)
+  - [📝 In the beginning...](#-in-the-beginning)
+  - [🌈 Types...](#-types)
+  - [⚡ With Callback approach](#-with-callback-approach)
+  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
+  - [💥 Error capture](#-error-capture)
+  - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
+  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
+- [To do next: API](#to-do-next-api)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
