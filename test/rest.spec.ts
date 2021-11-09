@@ -24,8 +24,6 @@ it('Should fetch typed result with callback', function () {
     $endpointBase.get<Post[]>().then(posts => expect(posts).toHaveLength(3))
 })
 
-declare function transformPost(r: Post): UserPost;
-
 it('Should fetch typed result with async/await and generate query params', async function () {
     const d = new Date();
 
@@ -43,6 +41,17 @@ it('Should fetch typed result with async/await and generate query params', async
 
 it('Should post data', async function () {
     const post = await $endpointBase.post<Post>({ title: 'test' });
+    expect(post).toStrictEqual({ id: 4, title: 'test' });
+});
+
+it('Should post data with query params', async function () {
+    const post = await $endpointBase.withQuery({test: 1}).post<Post>({ title: 'test' }, {
+        onSend({ url }) {
+            const builtinUrl = endpointTestPath + `?test=1`;
+            expect(url).toBe(builtinUrl);
+            console.log(url)
+        }
+    });
     expect(post).toStrictEqual({ id: 4, title: 'test' });
 });
 

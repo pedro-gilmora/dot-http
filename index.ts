@@ -1,11 +1,11 @@
 import { merge, sleep } from "./utils";
 import { FetchError } from "./errors";
 
-type DefautlHttpCallInit = {  
+type DefautlHttpCallInit = {
   throttle?: number;
   baseUrl?: string;
   url?: string;
-  onSend?(e: HttpCallInit) : void | Promise<void>;
+  onSend?(e: HttpCallInit): void | Promise<void>;
 }
 
 export type HttpCallInit = RequestInit & DefautlHttpCallInit & {
@@ -16,15 +16,16 @@ export type HttpCallInitOf<T, TransformedType = unknown> = RequestInit & Defautl
   transform?: (v: T) => TransformedType
 };
 
-export type HttpCallerInstance = {  
-  get<T, TransformedType = T>(data?: Record<string, any>, init?: HttpCallInitOf<T,TransformedType>): Promise<TransformedType>;
+export type HttpCallerInstance = {
+  get<T, TransformedType = T>(query?: Record<string, any>, init?: HttpCallInitOf<T, TransformedType>): Promise<TransformedType>;
   post<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
   put<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
-  delete<T, TransformedType = T>(data?: Record<string, any>, init?: HttpCallInitOf<T,TransformedType>): Promise<TransformedType>;
-  setOptions(arg: any): HttpCallerInstance;
+  delete<T, TransformedType = T>(query?: Record<string, any>, init?: HttpCallInitOf<T, TransformedType>): Promise<TransformedType>;
+  withOptions(arg: HttpCallInit): HttpCallerInstance;
+  withQuery(arg: Record<string, any>): HttpCallerInstance;
   $path: string;
 } & {
-  [x: string|number]: HttpCallerInstance
+  [x: string | number]: HttpCallerInstance
 };
 
 const throttleDetect = /\$Throttle.*?\((.*?)\)/gm;
@@ -82,13 +83,19 @@ const throttlingMap = {} as { [x: string]: { controller: AbortController, awaite
 export class HttpCall {
 
   #opts: HttpCallInit | (() => Promise<HttpCallInit>) = null as any;
+  #query: Record<string, any>;
 
   constructor(opts?: any) {
     this.#opts = opts ?? {};
   }
 
-  withOptions(url: string, options: Record<string, any>) {
+  withOptions(url: string, options: HttpCallInit) {
     this.#opts = options ?? {};
+    return this
+  }
+
+  withQuery(url: string, query: Record<string, any>) {
+    this.#query = query ?? {};
     return this
   }
 
@@ -97,23 +104,23 @@ export class HttpCall {
   }
 
   get<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
-    return this.doRequest('get', url + toQuery(data), null, merge(options, {}));
+    return this.doRequest('get', url + toQuery(Object.assign(this.#query ?? {}, data ?? {})), undefined, merge(options, {}));
   }
 
   post<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
-    return this.doRequest('post', url, data, merge(options, {}));
+    return this.doRequest('post', url + toQuery(this.#query ?? {}), data, merge(options, {}));
   }
 
   put<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
-    return this.doRequest('put', url, data, merge(options, {}));
+    return this.doRequest('put', url + toQuery(this.#query ?? {}), data, merge(options, {}));
   }
 
   delete<T>(url: string, urlParams?: any, options: HttpCallInit = {}): Promise<T> {
-    return this.doRequest('delete', url, urlParams, merge(options, {}));
+    return this.doRequest('delete', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
   }
 
   private async doRequest(method: string, url: string, body: any, extraOptions: HttpCallInit): Promise<any> {
-    let controller: AbortController, signal: AbortSignal | undefined = undefined
+    let signal: AbortSignal | undefined = undefined
     const callingPoint = new Error().stack!.split(throttleDetect)?.[1] ?? '';
     if (extraOptions.throttle && callingPoint) {
       let { controller, awaiter } = throttlingMap[callingPoint] ?? {};
@@ -131,8 +138,7 @@ export class HttpCall {
       signal = controller.signal;
       //Register the new session
       throttlingMap[callingPoint] = { controller, awaiter: awaiter ?? Promise.resolve() };
-      console.log('Request registered')
-
+      // console.log('Request registered')
     }
 
     const opts = this.#opts;
@@ -140,20 +146,18 @@ export class HttpCall {
     if (typeof opts === 'function')
       this.#opts = await opts();
 
-    url = fixUpUrl(url ?? '', (opts as HttpCallInit).baseUrl);
     extraOptions = extraOptions ?? {};
-
+    
     delete extraOptions.method;
-
+    
     extraOptions = merge({
       method,
       headers: (opts as HttpCallInit).headers ?? {},
       signal
-      // mode: 'cors',
-      // headers: await AuthService.instance?.genHeaders()
     }, extraOptions ?? {});
+    
+    extraOptions.url = fixUpUrl(url ?? '', (opts as HttpCallInit).baseUrl);
 
-    tr:
     if (body instanceof FormData)
       (extraOptions.headers as any)['Content-Type'] = "multipart/form-data";
     else if (body instanceof Object)
@@ -165,13 +169,17 @@ export class HttpCall {
       newForm.append("fileName", body.name);
       body = newForm
     }
+
     if (body)
       extraOptions.body = body instanceof FormData ? body : JSON.stringify(body ?? null);
 
-    extraOptions.onSend?.({ ...extraOptions, url })
+    let afterOnSend = extraOptions.onSend?.(extraOptions)
 
-    const response = await fetch(url, extraOptions);
-    
+    if (afterOnSend instanceof Promise)
+      await afterOnSend;
+
+    const response = await fetch(extraOptions.url!, extraOptions);
+
     let result: any
 
     if (response.headers.get('Content-Type') == "application/octet-stream")
@@ -185,6 +193,9 @@ export class HttpCall {
 
     result = extraOptions.transform?.(result) ?? result
 
+    if(result instanceof Promise)
+      result = await result
+
     if (response.ok)
       return result
 
@@ -194,10 +205,14 @@ export class HttpCall {
   }
 
   static create(init: HttpCallInit | Promise<HttpCallInit>) {
-    const instance = new HttpCall(init)
+
+    const instance = new HttpCall(init);
+
     return new Proxy([] as string[], {
+      
       // @ts-ignore
       get(path, part: string | number, r: any) {
+
         const partStr = `${encodeURIComponent(part?.toString() ?? '')}`,
           pathStr = path.join('/');
 
@@ -205,14 +220,12 @@ export class HttpCall {
 
           const propValue = (instance as any)[partStr];
 
-          if (/(add|remove|dispatch)?Event(Listener)/)
-
-            if (typeof propValue === "function") {
-              return (...args: any[]) => {
-                const result = propValue.call(instance, pathStr, ...args);
-                return result === instance ? r : result;
-              }
-            }
+          if (typeof propValue === "function") {
+            return (...args: any[]) => {
+              const result = propValue.call(instance, pathStr, ...args);
+              return result === instance ? r : result;
+            };
+          }
 
           return propValue
         }
@@ -221,8 +234,10 @@ export class HttpCall {
           return fixUpUrl(pathStr, (instance.#opts as HttpCallInit).baseUrl);
         }
 
-        return new Proxy([...path, part?.toString()] as string[], this as ProxyHandler<string[]>)
+        return new Proxy([...path, part?.toString()] as string[], this as ProxyHandler<string[]>);
+
       }
+
     }) as any as HttpCallerInstance
   }
 }

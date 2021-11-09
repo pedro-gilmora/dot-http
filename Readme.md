@@ -3,16 +3,18 @@
 >This packages relies on `fetch` API
 
 **Table of content**:
-- [💁‍♂️ Why?](#️-why)
-- [🔨 Let's make it work easy](#-lets-make-it-work-easy)
-  - [📝 In the beginning...](#-in-the-beginning)
-  - [🌈 Types...](#-types)
-  - [⚡ With Callback approach](#-with-callback-approach)
-  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
-  - [💥 Error capture](#-error-capture)
-  - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
-  - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
-- [To do next: API](#to-do-next-api)
+- [🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST](#️-http-call-a-dynamical--self-constructive--dot-syntax-http-client-for-rest)
+  - [💁‍♂️ Why?](#️-why)
+  - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
+    - [📝 In the beginning...](#-in-the-beginning)
+    - [🌈 Types...](#-types)
+    - [⚡ With Callback approach](#-with-callback-approach)
+    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
+    - [💥 Error capture](#-error-capture)
+    - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
+    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
+  - [API](#api)
+    - [`HttpCall` Instance](#httpcall-instance)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
@@ -296,4 +298,77 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 </tr>
 </table>
 
-## To do next: API
+----------
+
+## API
+
+### `HttpCall` Instance
+```ts
+//Caller instance
+export type HttpCallerInstance = {  
+
+  //Retrieve the built-in URL path
+  $path: string;
+
+  //Performs a GET request.
+  get<T, TOut = T>(
+
+    // Record object to be converted to query string
+    query?: Record<string, any>, 
+
+    //Custom request configuration
+    init?: HttpCallInitOf<T,TOut>
+
+  ): Promise<TOut>;
+
+  
+  //Performs a POST request.
+  post<T, TOut = T>(
+
+    //data to be sent
+    data?: T, 
+
+    //Custom request configuration
+    init?: HttpCallInitOf<T, TOut>
+
+  ): Promise<TOut>;
+
+   
+  //Performs a PUT request.
+  put<T, TOut = T>(
+
+    //data to be sent
+    data?: T, 
+
+    //Custom request configuration
+    init?: HttpCallInitOf<T, TOut>
+
+  ): Promise<TOut>;
+ 
+
+  //Performs a DELETE request.
+  delete<T, TOut = T>(
+
+    // Record object to be converted to query string
+    query?: Record<string, any>, 
+
+    //Custom request configuration
+    init?: HttpCallInitOf<T,TOut>
+
+  ): Promise<TOut>;
+
+
+  //configure the current request
+  withOptions(opts: HttpCallInitOf<T,TOut>): HttpCallerInstance;
+ 
+ 
+  //adds query parameters. Useful for POST and PUT requests
+  withQuery(query: Record<string, any>): HttpCallerInstance;
+
+} & {
+
+  // any other specified string key property will return the current instance (Proxy)
+  [x: string|number]: HttpCallerInstance
+
+};
+```
