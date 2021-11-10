@@ -1,13 +1,15 @@
 {
   "name": "@pedro.gilmora/http-call",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "description": "A Typescript dynamical dot-syntax HTTP-client for REST",
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "git pull & rmdir /S /Q dist & tsc & copy Readme.md dist\\ReadMe.md & copy package.json dist\\package.json",
-    "upload": "pnpm build & pnpm publish dist"
+    "save" : "git pull & git push",
+    "clean": "rmdir /S /Q dist",
+    "build": "tsc & copy Readme.md dist\\ReadMe.md & copy package.json dist\\package.json",
+    "upload": "pnpm save & pnpm test & pnpm build & pnpm publish dist"
   },
   "author": "pedro.gilmora@outlook.es",
   "license": "ISC",
