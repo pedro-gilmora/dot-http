@@ -1,31 +1,31 @@
 import { merge, sleep } from "./utils";
 import { FetchError } from "./errors";
 
-type DefautlHttpCallInit = {
+type DefautlDotHttpInit = {
   throttle?: number;
   baseUrl?: string;
   url?: string;
-  onSend?(e: HttpCallInit): void | Promise<void>;
+  onSend?(e: DotHttpInit): void | Promise<void>;
 }
 
-export type HttpCallInit = RequestInit & DefautlHttpCallInit & {
+export type DotHttpInit = RequestInit & DefautlDotHttpInit & {
   transform?<TOut, TIn>(t: TIn): TOut
 }
 
-export type HttpCallInitOf<T, TransformedType = unknown> = RequestInit & DefautlHttpCallInit & {
+export type DotHttpInitOf<T, TransformedType = unknown> = RequestInit & DefautlDotHttpInit & {
   transform?: (v: T) => TransformedType
 };
 
-export type HttpCallerInstance = {
-  get<T, TransformedType = T>(query?: Record<string, any>, init?: HttpCallInitOf<T, TransformedType>): Promise<TransformedType>;
-  post<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
-  put<T, TransformedT = T>(data?: T, init?: HttpCallInitOf<T, TransformedT>): Promise<TransformedT>;
-  delete<T, TransformedType = T>(query?: Record<string, any>, init?: HttpCallInitOf<T, TransformedType>): Promise<TransformedType>;
-  withOptions(arg: HttpCallInit): HttpCallerInstance;
-  withQuery(arg: Record<string, any>): HttpCallerInstance;
+export type DotHttperInstance = {
+  get<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
+  post<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  put<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  delete<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
+  withOptions(arg: DotHttpInit): DotHttperInstance;
+  withQuery(arg: Record<string, any>): DotHttperInstance;
   $path: string;
 } & {
-  [x: string | number]: HttpCallerInstance
+  [x: string | number]: DotHttperInstance
 };
 
 const throttleDetect = /\$Throttle.*?\((.*?)\)/gm;
@@ -120,16 +120,16 @@ type ThrottlingRegistry = {
 
 const throttlingMap = {} as ThrottlingRegistry;
 
-export class HttpCall {
+export class DotHttp {
 
-  #opts: HttpCallInit | (() => Promise<HttpCallInit>) = null as any;
+  #opts: DotHttpInit | (() => Promise<DotHttpInit>) = null as any;
   #query: Record<string, any>;
 
   constructor(opts?: any) {
     this.#opts = opts ?? {};
   }
 
-  withOptions(url: string, options: HttpCallInit) {
+  withOptions(url: string, options: DotHttpInit) {
     this.#opts = options ?? {};
     return this
   }
@@ -143,23 +143,23 @@ export class HttpCall {
     return url
   }
 
-  get<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
+  get<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
     return this.doRequest('get', url + toQuery(Object.assign(this.#query ?? {}, data ?? {})), undefined, merge(options, {}));
   }
 
-  post<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
+  post<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
     return this.doRequest('post', url + toQuery(this.#query ?? {}), data, merge(options, {}));
   }
 
-  put<T>(url: string, data?: any, options: HttpCallInit = {}): Promise<T> {
+  put<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
     return this.doRequest('put', url + toQuery(this.#query ?? {}), data, merge(options, {}));
   }
 
-  delete<T>(url: string, urlParams?: any, options: HttpCallInit = {}): Promise<T> {
+  delete<T>(url: string, urlParams?: any, options: DotHttpInit = {}): Promise<T> {
     return this.doRequest('delete', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
   }
 
-  send<T>(url: string, urlParams?: any, options: HttpCallInit = {}): Promise<T> {
+  send<T>(url: string, urlParams?: any, options: DotHttpInit = {}): Promise<T> {
     return this.doRequest(options.method ?? 'get', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
   }
 
@@ -167,7 +167,7 @@ export class HttpCall {
     method: string, 
     url: string, 
     body: any, 
-    {onSend, throttle, baseUrl, transform, ...options}: HttpCallInit
+    {onSend, throttle, baseUrl, transform, ...options}: DotHttpInit
   ): Promise<any> {
 
     const opts = this.#opts;
@@ -181,10 +181,10 @@ export class HttpCall {
 
     options = merge({
       method,
-      headers: (opts as HttpCallInit).headers ?? {},
+      headers: (opts as DotHttpInit).headers ?? {},
     }, options ?? {});
 
-    options.url = fixUpUrl(url ?? '', (opts as HttpCallInit).baseUrl);
+    options.url = fixUpUrl(url ?? '', (opts as DotHttpInit).baseUrl);
 
     if (body instanceof FormData)
       (options.headers as any)['Content-Type'] = "multipart/form-data";
@@ -237,9 +237,9 @@ export class HttpCall {
     throw new FetchError(code, message, result);
   }
 
-  static create(init: HttpCallInit | Promise<HttpCallInit>) {
+  static create(init: string | DotHttpInit | Promise<DotHttpInit>) {
 
-    const instance = new HttpCall(init);
+    const instance = new DotHttp(typeof init === 'string' ? {baseUrl: init} : init);
 
     return new Proxy([] as string[], {
 
@@ -264,13 +264,13 @@ export class HttpCall {
         }
 
         if (part === "$path") {
-          return fixUpUrl(pathStr, (instance.#opts as HttpCallInit).baseUrl);
+          return fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl);
         }
 
         return new Proxy([...path, part?.toString()] as string[], this as ProxyHandler<string[]>);
 
       }
 
-    }) as any as HttpCallerInstance
+    }) as any as DotHttperInstance
   }
 }

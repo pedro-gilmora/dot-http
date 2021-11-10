@@ -1,9 +1,9 @@
-# 🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
+# 🧙‍♂️ **DotHTTP**: a dynamical + self-constructive + dot-syntax HTTP-client for REST
 
 > This packages relies on `fetch` API
 
 **Table of content**:
-- [🧙‍♂️ **HTTP-Call**: a dynamical + self-constructive + dot-syntax HTTP-client for REST](#️-http-call-a-dynamical--self-constructive--dot-syntax-http-client-for-rest)
+- [🧙‍♂️ **DotHTTP**: a dynamical + self-constructive + dot-syntax HTTP-client for REST](#️-dothttp-a-dynamical--self-constructive--dot-syntax-http-client-for-rest)
   - [💁‍♂️ Why?](#️-why)
   - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
     - [📝 In the beginning...](#-in-the-beginning)
@@ -14,13 +14,13 @@
     - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
   - [API](#api)
-    - [`HttpCall` Instance](#httpcall-instance)
+    - [`DotHttp` Instance](#dothttp-instance)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
 
 
->https://user-images.githubusercontent.com/33942331/140660876-2eae5e31-2772-47c9-b3dd-d612a33014b5.mp4
+<video src="https://user-images.githubusercontent.com/33942331/140660876-2eae5e31-2772-47c9-b3dd-d612a33014b5.mp4"></video>
 
 
 👇Here we go...
@@ -32,10 +32,10 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 ### 📝 In the beginning...
 ```ts
-import { HttpCall } from "@pedro.gilmora\http-call";
+import { DotHttp } from "@pedro.gilmora\http-call";
 
 const 
-    $api = HttpCall.create({ baseUrl: `https://my-json-server.typicode.com` }),
+    $api = DotHttp.create(`https://my-json-server.typicode.com`),
     restPathParamProp = 'posts',
     $endpointBase = $api.typicode.demo[ restPathParamProp ];
 
@@ -302,10 +302,10 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 ## API
 
-### `HttpCall` Instance
+### `DotHttp` Instance
 ```ts
 //Caller instance
-export type HttpCallerInstance = {  
+export type DotHttperInstance = {  
 
   //Retrieve the built-in URL path
   $path: string;
@@ -317,7 +317,7 @@ export type HttpCallerInstance = {
     query?: Record<string, any>, 
 
     //Custom request configuration
-    init?: HttpCallInitOf<T,TOut>
+    init?: DotHttpInitOf<T,TOut>
 
   ): Promise<TOut>;
 
@@ -329,7 +329,7 @@ export type HttpCallerInstance = {
     data?: T, 
 
     //Custom request configuration
-    init?: HttpCallInitOf<T, TOut>
+    init?: DotHttpInitOf<T, TOut>
 
   ): Promise<TOut>;
 
@@ -341,7 +341,7 @@ export type HttpCallerInstance = {
     data?: T, 
 
     //Custom request configuration
-    init?: HttpCallInitOf<T, TOut>
+    init?: DotHttpInitOf<T, TOut>
 
   ): Promise<TOut>;
  
@@ -353,22 +353,22 @@ export type HttpCallerInstance = {
     query?: Record<string, any>, 
 
     //Custom request configuration
-    init?: HttpCallInitOf<T,TOut>
+    init?: DotHttpInitOf<T,TOut>
 
   ): Promise<TOut>;
 
 
   //configure the current request
-  withOptions(opts: HttpCallInitOf<T,TOut>): HttpCallerInstance;
+  withOptions(opts: DotHttpInitOf<T,TOut>): DotHttperInstance;
  
  
   //adds query parameters. Useful for POST and PUT requests
-  withQuery(query: Record<string, any>): HttpCallerInstance;
+  withQuery(query: Record<string, any>): DotHttperInstance;
 
 } & {
 
   // any other specified property access will return the current instance with a new path segment (Proxy)
-  [x: string|number]: HttpCallerInstance
+  [x: string|number]: DotHttperInstance
 
 };
 ```

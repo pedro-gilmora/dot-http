@@ -1,10 +1,10 @@
 
 import './mocks'; 
-import { HttpCall } from "../";
+import { DotHttp } from "../";
 import { FetchError } from '../errors';
 import { Post, User, UserPost } from './types';
 
-const $api = HttpCall.create({ baseUrl: `https://my-json-server.typicode.com` }) // returns a type HttpCallInstance;
+const $api = DotHttp.create(`https://my-json-server.typicode.com`) // returns a type DotHttpInstance;
 
 const
     paramRestProp = 'posts',
