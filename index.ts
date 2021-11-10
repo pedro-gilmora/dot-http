@@ -78,7 +78,47 @@ export function fixUpUrl(url: string, baseUrl: string | undefined = undefined) {
   return url;
 }
 
-const throttlingMap = {} as { [x: string]: { controller: AbortController, awaiter: Promise<void> } };
+async function throttleUp<T>(promise: Promise<T>, callingPoint: string, ms: number){
+  const 
+    controller = throttlingMap[callingPoint] ?? (throttlingMap[callingPoint] = {}),
+    current = Date.now();
+
+  const lastThrottling = Object.keys(controller).pop()!;
+
+  controller[current] = new AbortController();
+
+  console.log("Last registry:", lastThrottling);
+
+  await sleep(ms);
+    
+  if(controller[lastThrottling]){
+    controller[lastThrottling].abort();
+  }
+
+  let result = await promise;
+  
+  try{
+    if(controller[current]?.signal?.aborted){
+      throw new Error(`Promise with result: [${result}] was cancelled by throttling`);
+    }
+    return result
+  }
+  catch(e){
+    throw e;
+  }
+  finally {
+    delete controller[current];
+  }
+}
+
+type ThrottlingRegistry = {
+  //method$Throttle location
+  [x: string]: {
+    [x: string]: AbortController;
+  };
+};
+
+const throttlingMap = {} as ThrottlingRegistry;
 
 export class HttpCall {
 
@@ -119,66 +159,59 @@ export class HttpCall {
     return this.doRequest('delete', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
   }
 
-  private async doRequest(method: string, url: string, body: any, extraOptions: HttpCallInit): Promise<any> {
-    let signal: AbortSignal | undefined = undefined
-    const callingPoint = new Error().stack!.split(throttleDetect)?.[1] ?? '';
-    if (extraOptions.throttle && callingPoint) {
-      let { controller, awaiter } = throttlingMap[callingPoint] ?? {};
+  send<T>(url: string, urlParams?: any, options: HttpCallInit = {}): Promise<T> {
+    return this.doRequest(options.method ?? 'get', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
+  }
 
-      //If exists a controller and throttle time overcome
-      if (controller) {
-        //Abort the actual controller
-        controller.abort();
-        await (awaiter = awaiter.then(async () => await sleep(extraOptions.throttle!)));
-        awaiter = Promise.resolve()
-      }
-
-      //Create another controller and get the signal
-      controller = new AbortController();
-      signal = controller.signal;
-      //Register the new session
-      throttlingMap[callingPoint] = { controller, awaiter: awaiter ?? Promise.resolve() };
-      // console.log('Request registered')
-    }
+  private async doRequest(
+    method: string, 
+    url: string, 
+    body: any, 
+    {onSend, throttle, baseUrl, transform, ...options}: HttpCallInit
+  ): Promise<any> {
 
     const opts = this.#opts;
 
     if (typeof opts === 'function')
       this.#opts = await opts();
 
-    extraOptions = extraOptions ?? {};
-    
-    delete extraOptions.method;
-    
-    extraOptions = merge({
+    options = options ?? {};
+
+    delete options.method;
+
+    options = merge({
       method,
       headers: (opts as HttpCallInit).headers ?? {},
-      signal
-    }, extraOptions ?? {});
-    
-    extraOptions.url = fixUpUrl(url ?? '', (opts as HttpCallInit).baseUrl);
+    }, options ?? {});
+
+    options.url = fixUpUrl(url ?? '', (opts as HttpCallInit).baseUrl);
 
     if (body instanceof FormData)
-      (extraOptions.headers as any)['Content-Type'] = "multipart/form-data";
+      (options.headers as any)['Content-Type'] = "multipart/form-data";
     else if (body instanceof Object)
-      (extraOptions.headers as any)['Content-Type'] = "application/json";
+      (options.headers as any)['Content-Type'] = "application/json";
     else if (body instanceof File) {
-      (extraOptions.headers as any)['Content-Type'] = "multipart/form-data";
-      const newForm = new FormData()
-      newForm.append("file", body);
-      newForm.append("fileName", body.name);
-      body = newForm
+      (options.headers as any)['Content-Type'] = "multipart/form-data";
+      const form = new FormData()
+      form.append("file", body);
+      form.append("fileName", body.name);
+      body = form
     }
 
     if (body)
-      extraOptions.body = body instanceof FormData ? body : JSON.stringify(body ?? null);
+      options.body = body instanceof FormData ? body : JSON.stringify(body ?? null);
 
-    let afterOnSend = extraOptions.onSend?.(extraOptions)
+    let afterOnSend = onSend?.(options)
 
     if (afterOnSend instanceof Promise)
       await afterOnSend;
 
-    const response = await fetch(extraOptions.url!, extraOptions);
+
+    const callingPoint = (new Error().stack?.split(throttleDetect)?.[1] ?? '').trim();
+
+    const response = await (callingPoint && throttle 
+      ? throttleUp(fetch(options.url!, options), callingPoint, throttle) 
+      : fetch(options.url!, options) );
 
     let result: any
 
@@ -191,9 +224,9 @@ export class HttpCall {
     else
       result = await response.text();
 
-    result = extraOptions.transform?.(result) ?? result
+    result = transform?.(result) ?? result
 
-    if(result instanceof Promise)
+    if (result instanceof Promise)
       result = await result
 
     if (response.ok)
@@ -209,7 +242,7 @@ export class HttpCall {
     const instance = new HttpCall(init);
 
     return new Proxy([] as string[], {
-      
+
       // @ts-ignore
       get(path, part: string | number, r: any) {
 

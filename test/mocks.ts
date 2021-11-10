@@ -8,3 +8,4 @@ global.EventTarget = dom.window.EventTarget;
 global.FormData = dom.window.FormData;
 global.File = dom.window.File;
 global.Blob = dom.window.Blob;
+global.AbortController = dom.window.AbortController;

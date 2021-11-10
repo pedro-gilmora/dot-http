@@ -22,7 +22,7 @@ it('Should work with dynamic keys', function () {
 
 it('Should fetch typed result with callback', function () {
     $endpointBase.get<Post[]>().then(posts => expect(posts).toHaveLength(3))
-})
+});
 
 it('Should fetch typed result with async/await and generate query params', async function () {
     const d = new Date();
