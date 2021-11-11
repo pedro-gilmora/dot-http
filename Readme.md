@@ -33,10 +33,10 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 ### 📝 In the beginning...
 ```ts
-import DotHttp from "dot-http";
+import api from "dot-http";
 
 const 
-    $api = DotHttp.create(`https://my-json-server.typicode.com`),
+    $api = api.create(`https://my-json-server.typicode.com`),
     restPathParamProp = 'posts',
     $endpointBase = $api.typicode.demo[ restPathParamProp ];
 ...
