@@ -1,6 +1,6 @@
 
 import './mocks'; 
-import { DotHttp } from "../";
+import DotHttp from "../";
 import { FetchError } from '../errors';
 import { Post, User, UserPost } from './types';
 

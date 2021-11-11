@@ -33,7 +33,7 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 ### 📝 In the beginning...
 ```ts
-import { DotHttp } from "@pedro.gilmora\http-call";
+import DotHttp from "dot-http";
 
 const 
     $api = DotHttp.create(`https://my-json-server.typicode.com`),
@@ -321,7 +321,7 @@ $path: string
 
   </td>
   <td valign="top">
-    <h3><i>Retrieve the built-in URL path</</h3>i>
+    <h3><i>Retrieve the built-in URL path</i></h3>
   </td>
   </tr>
   <tr>

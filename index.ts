@@ -120,7 +120,7 @@ type ThrottlingRegistry = {
 
 const throttlingMap = {} as ThrottlingRegistry;
 
-export class DotHttp {
+export default class DotHttp {
 
   #opts: DotHttpInit | (() => Promise<DotHttpInit>) = null as any;
   #query!: Record<string, any>;
