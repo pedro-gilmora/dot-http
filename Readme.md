@@ -38,7 +38,6 @@ const
     $api = DotHttp.create(`https://my-json-server.typicode.com`),
     restPathParamProp = 'posts',
     $endpointBase = $api.typicode.demo[ restPathParamProp ];
-
 ...
 
 console.log($endpointBase.$path);
@@ -301,6 +300,45 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 ----------
 
 ## API
+
+
+<table>
+  <tr>
+  <th align=right valign=top >
+    Members
+  </th>
+  <th valign="top">
+    Description
+  </th>
+  </tr>
+  <tr>
+  <td valign=top >
+
+```ts
+$path: string
+```
+
+  </td>
+  <td valign="top">
+    Retrieve the built-in URL path
+  </td>
+  </tr>
+  <tr>
+  <td valign=top >
+
+```ts
+get<T, TOut = T>(
+  query?: Record<string, any>,
+  init?: DotHttpInitOf<T,TOut>
+)
+```
+
+  </td>
+  <td valign="top">
+    Retrieve the built-in URL path
+  </td>
+  </tr>
+</table>
 
 ### `DotHttp` Instance
 ```ts

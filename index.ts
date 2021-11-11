@@ -40,6 +40,7 @@ export function encode(s: string | number | boolean) {
   );
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function fromQuery(obj?: string): Record<string, any> {
   return Object.fromEntries(obj?.split('&')?.map(x => x.split('=').map((x, i) => {
     if (i === 0)
@@ -57,7 +58,7 @@ export function toQuery(obj: any) {
   return (
     "?" +
     Object.entries<any>(obj || {})
-      .filter(([key, val]) => val !== undefined)
+      .filter(([, val]) => val !== undefined)
       .map(([key, val]) => {
         return `${key}=${encode(
           val instanceof Date
@@ -99,6 +100,7 @@ async function throttleUp<T>(promise: Promise<T>, callingPoint: string, ms: numb
   
   try{
     if(controller[current]?.signal?.aborted){
+      // noinspection ExceptionCaughtLocallyJS
       throw new Error(`Promise with result: [${result}] was cancelled by throttling`);
     }
     return result
@@ -129,11 +131,13 @@ export class DotHttp {
     this.#opts = opts ?? {};
   }
 
+  // noinspection JSUnusedGlobalSymbols
   withOptions(url: string, options: DotHttpInit) {
     this.#opts = options ?? {};
     return this
   }
 
+  // noinspection JSUnusedGlobalSymbols
   withQuery(url: string, query: Record<string, any>) {
     this.#query = query ?? {};
     return this
