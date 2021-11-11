@@ -12,7 +12,6 @@
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
     - [💥 Error capture](#-error-capture)
     - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
-    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
   - [API](#api)
     - [**`DotHttp` instance**](#dothttp-instance)
     - [**Request extra-config**](#request-extra-config)
