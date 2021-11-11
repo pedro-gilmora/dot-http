@@ -14,7 +14,8 @@
     - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
   - [API](#api)
-    - [`DotHttp` Instance](#dothttp-instance)
+    - [**`DotHttp` instance**](#dothttp-instance)
+    - [**Request extra-config**](#request-extra-config)
 
 ## 💁‍♂️ Why? 
 I just love self-constructive objects. So, why not to create a **dynamical self-constructive** HTTP client?
@@ -301,7 +302,7 @@ const filtered = await $endpointBase[id].get<Post[]>(queryParams, {
 
 ## API
 
-
+### **`DotHttp` instance** 
 <table>
   <tr>
   <th align=right valign=top >
@@ -320,11 +321,11 @@ $path: string
 
   </td>
   <td valign="top">
-    Retrieve the built-in URL path
+    <h3><i>Retrieve the built-in URL path</</h3>i>
   </td>
   </tr>
   <tr>
-  <td valign=top >
+  <td>
 
 ```ts
 get<T, TOut = T>(
@@ -335,78 +336,287 @@ get<T, TOut = T>(
 
   </td>
   <td valign="top">
-    Retrieve the built-in URL path
+    <h3><i>Performs a GET request</i></h3>
+    <table>
+      <tr>
+        <th>Parameter
+        </th>
+        <th>
+          Description
+        </th>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+query?: Record<string, any>
+```        
+  </td>
+        <td valign="top">
+          Record object to be converted to query string
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+init?: DotHttpInitOf<T,TOut>
+```        
+  </td>
+        <td valign="top">
+          Custom request configuration
+        </td>
+      </tr>
+    </table>
+  </td>
+  </tr>
+  <tr>
+  <td>
+
+```ts
+post<T, TOut = T>(
+  data?: T, 
+  init?: DotHttpInitOf<T, TOut>
+): Promise<TOut>;
+```
+
+  </td>
+  <td valign="top">
+   <h3><i> Performs a POST request</i></h3>
+    <table>
+      <tr>
+        <th>Parameter
+        </th>
+        <th>
+          Description
+        </th>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+data?: T
+```        
+  </td>
+        <td valign="top">
+          Data to be sent.<br/> 
+          Return type will be inferred from this parameter in case of request <code>transform</code> option has not been specified.
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+init?: DotHttpInitOf<T,TOut>
+```        
+  </td>
+        <td valign="top">
+          Custom request configuration
+        </td>
+      </tr>
+    </table>
+  </td>
+  </tr>
+  <tr>
+  <td>
+
+```ts
+put<T, TOut = T>(
+  data?: T, 
+  init?: DotHttpInitOf<T, TOut>
+): Promise<TOut>;
+```
+
+  </td>
+  <td valign="top">
+   <h3><i> Performs a PUT request</i></h3>
+    <table>
+      <tr>
+        <th>Parameter
+        </th>
+        <th>
+          Description
+        </th>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+data?: T
+```        
+  </td>
+        <td valign="top">
+          Data to be sent.<br/> 
+          Return type will be inferred from this parameter in case of request <code>transform</code> option has not been specified.
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+init?: DotHttpInitOf<T,TOut>
+```        
+  </td>
+        <td valign="top">
+          Custom request configuration
+        </td>
+      </tr>
+    </table>
+  </td>
+  </tr>
+  <tr>
+  <td>
+
+```ts
+patch<T, TOut = T>(
+  data?: Partial<T>, 
+  init?: DotHttpInitOf<T, TOut>
+): Promise<TOut>;
+```
+
+  </td>
+  <td valign="top">
+   <h3><i> Performs a PUT request</i></h3>
+    <table>
+      <tr>
+        <th>Parameter
+        </th>
+        <th>
+          Description
+        </th>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+data?: Partial<T>
+```        
+  </td>
+        <td valign="top">
+          Data to be sent.<br/> 
+          Return type will be inferred from this parameter in case of request <code>transform</code> option has not been specified.
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+init?: DotHttpInitOf<T,TOut>
+```        
+  </td>
+        <td valign="top">
+          Custom request configuration
+        </td>
+      </tr>
+    </table>
+  </td>
+  </tr>
+  <tr>
+  <td>
+
+```ts
+delete<T, TOut = T>(
+  query?: Record<string, any>,
+  init?: DotHttpInitOf<T,TOut>
+)
+```
+
+  </td>
+  <td valign="top">
+    <h3><i>Performs a DELETE request</i></h3>
+    <table>
+      <tr>
+        <th>Parameter
+        </th>
+        <th>
+          Description
+        </th>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+query?: Record<string, any>
+```        
+  </td>
+        <td valign="top">
+          Record object to be converted to query string
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">
+
+```ts
+init?: DotHttpInitOf<T,TOut>
+```        
+  </td>
+        <td valign="top">
+          Custom request configuration
+        </td>
+      </tr>
+    </table>
   </td>
   </tr>
 </table>
 
-### `DotHttp` Instance
+
+### **Request extra-config**
+<table>
+<tr>
+<th>
+Member
+</th>
+<th>
+Description
+</th>
+</tr>
+<tr>
+<td>
+
 ```ts
-//Caller instance
-export type DotHttperInstance = {  
-
-  //Retrieve the built-in URL path
-  $path: string;
-
-  //Performs a GET request.
-  get<T, TOut = T>(
-
-    // Record object to be converted to query string
-    query?: Record<string, any>, 
-
-    //Custom request configuration
-    init?: DotHttpInitOf<T,TOut>
-
-  ): Promise<TOut>;
-
-  
-  //Performs a POST request.
-  post<T, TOut = T>(
-
-    //data to be sent
-    data?: T, 
-
-    //Custom request configuration
-    init?: DotHttpInitOf<T, TOut>
-
-  ): Promise<TOut>;
-
-   
-  //Performs a PUT request.
-  put<T, TOut = T>(
-
-    //data to be sent
-    data?: T, 
-
-    //Custom request configuration
-    init?: DotHttpInitOf<T, TOut>
-
-  ): Promise<TOut>;
- 
-
-  //Performs a DELETE request.
-  delete<T, TOut = T>(
-
-    // Record object to be converted to query string
-    query?: Record<string, any>, 
-
-    //Custom request configuration
-    init?: DotHttpInitOf<T,TOut>
-
-  ): Promise<TOut>;
-
-
-  //configure the current request
-  withOptions(opts: DotHttpInitOf<T,TOut>): DotHttperInstance;
- 
- 
-  //adds query parameters. Useful for POST and PUT requests
-  withQuery(query: Record<string, any>): DotHttperInstance;
-
-} & {
-
-  // any other specified property access will return the current instance with a new path segment (Proxy)
-  [x: string|number]: DotHttperInstance
-
-};
+onSend?(e: DotHttpInit): void | Promise<void>
 ```
+
+</td>
+<td>
+Capture the current request before send it to the server
+</td>
+</tr>
+<tr>
+<td>
+
+```ts
+transform?(e: T): TOut | Promise<TOut>
+```
+
+</td>
+<td>
+When server response is OK, will be taken for transformation and return value of the operation. Type will be inferred from this
+</td>
+</tr>
+<tr>
+<td>
+
+```ts
+throttle?: number
+```
+
+</td>
+<td>
+For concurrent requests and mitigate server processing for several requests in the specified amount of time. 
+<i>Ex: Typeahead filter behavior</i>
+</td>
+</tr>
+<tr>
+<td>
+
+```ts
+baseUrl?: string
+```
+
+</td>
+<td>
+Server or initial path for requests
+</td>
+</tr>
+</table>

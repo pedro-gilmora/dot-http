@@ -20,6 +20,7 @@ export type DotHttperInstance = {
   get<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
   post<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
   put<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  patch<T, TransformedT = T>(data?: Partial<T>, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
   delete<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
   withOptions(arg: DotHttpInit): DotHttperInstance;
   withQuery(arg: Record<string, any>): DotHttperInstance;
@@ -79,7 +80,7 @@ export function fixUpUrl(url: string, baseUrl: string | undefined = undefined) {
   return url;
 }
 
-async function throttleUp<T>(promise: Promise<T>, callingPoint: string, ms: number){
+async function throttleUp(options: DotHttpInit, callingPoint: string, ms: number){
   const 
     controller = throttlingMap[callingPoint] ?? (throttlingMap[callingPoint] = {}),
     current = Date.now();
@@ -88,22 +89,18 @@ async function throttleUp<T>(promise: Promise<T>, callingPoint: string, ms: numb
 
   controller[current] = new AbortController();
 
-  console.log("Last registry:", lastThrottling);
-
-  await sleep(ms);
+  // console.log("Last registry:", lastThrottling);
     
   if(controller[lastThrottling]){
     controller[lastThrottling].abort();
   }
-
-  let result = await promise;
   
+  options.signal = controller[current].signal
+
+  await sleep(ms);
+
   try{
-    if(controller[current]?.signal?.aborted){
-      // noinspection ExceptionCaughtLocallyJS
-      throw new Error(`Promise with result: [${result}] was cancelled by throttling`);
-    }
-    return result
+    return await fetch(options.url!, options);
   }
   catch(e){
     throw e;
@@ -111,6 +108,7 @@ async function throttleUp<T>(promise: Promise<T>, callingPoint: string, ms: numb
   finally {
     delete controller[current];
   }
+
 }
 
 type ThrottlingRegistry = {
@@ -125,20 +123,20 @@ const throttlingMap = {} as ThrottlingRegistry;
 export class DotHttp {
 
   #opts: DotHttpInit | (() => Promise<DotHttpInit>) = null as any;
-  #query: Record<string, any>;
+  #query!: Record<string, any>;
 
   constructor(opts?: any) {
     this.#opts = opts ?? {};
   }
 
   // noinspection JSUnusedGlobalSymbols
-  withOptions(url: string, options: DotHttpInit) {
+  withOptions(_url: string, options: DotHttpInit) {
     this.#opts = options ?? {};
     return this
   }
 
   // noinspection JSUnusedGlobalSymbols
-  withQuery(url: string, query: Record<string, any>) {
+  withQuery(_url: string, query: Record<string, any>) {
     this.#query = query ?? {};
     return this
   }
@@ -213,9 +211,9 @@ export class DotHttp {
 
     const callingPoint = (new Error().stack?.split(throttleDetect)?.[1] ?? '').trim();
 
-    const response = await (callingPoint && throttle 
-      ? throttleUp(fetch(options.url!, options), callingPoint, throttle) 
-      : fetch(options.url!, options) );
+    const response = (callingPoint && throttle 
+      ? await throttleUp(options, callingPoint, throttle) 
+      : await fetch(options.url!, options) );
 
     let result: any
 
