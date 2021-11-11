@@ -125,7 +125,7 @@ Query parameters objects will be serialized as query string.
 const queryParams = { a: 'b', b: 2, c: true, d: new Date(), e: null },
     id = 1;
 
-const filtered = await $endpointBase[id].get<Post[]>(queryParams, { 
+const filtered = await $endpointBase[id].get<Post>(queryParams, { 
     // Tadaa: We have the ability to intercept the request before send it... 👏👏👏
     onSend({ url }) { 
         console.log(url);
