@@ -5,6 +5,7 @@ type DefautlDotHttpInit = {
   throttle?: number;
   baseUrl?: string;
   url?: string;
+  query?: any,
   onSend?(e: DotHttpInit): void | Promise<void>;
 }
 
@@ -123,53 +124,19 @@ const throttlingMap = {} as ThrottlingRegistry;
 export default class DotHttp {
 
   #opts: DotHttpInit | (() => Promise<DotHttpInit>) = null as any;
-  #query!: Record<string, any>;
 
   constructor(opts?: any) {
     this.#opts = opts ?? {};
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  withOptions(_url: string, options: DotHttpInit) {
-    this.#opts = options ?? {};
-    return this
-  }
-
-  // noinspection JSUnusedGlobalSymbols
-  withQuery(_url: string, query: Record<string, any>) {
-    this.#query = query ?? {};
-    return this
   }
 
   getUrl(url: string) {
     return url
   }
 
-  get<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
-    return this.doRequest('get', url + toQuery(Object.assign(this.#query ?? {}, data ?? {})), undefined, merge(options, {}));
-  }
-
-  post<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
-    return this.doRequest('post', url + toQuery(this.#query ?? {}), data, merge(options, {}));
-  }
-
-  put<T>(url: string, data?: any, options: DotHttpInit = {}): Promise<T> {
-    return this.doRequest('put', url + toQuery(this.#query ?? {}), data, merge(options, {}));
-  }
-
-  delete<T>(url: string, urlParams?: any, options: DotHttpInit = {}): Promise<T> {
-    return this.doRequest('delete', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
-  }
-
-  send<T>(url: string, urlParams?: any, options: DotHttpInit = {}): Promise<T> {
-    return this.doRequest(options.method ?? 'get', url + toQuery(Object.assign(this.#query ?? {}, urlParams ?? {})), undefined, merge(options, {}));
-  }
-
   private async doRequest(
     method: string, 
     url: string, 
-    body: any, 
-    {onSend, throttle, baseUrl, transform, ...options}: DotHttpInit
+    {onSend, query, throttle, baseUrl, transform, ...options}: DotHttpInit
   ): Promise<any> {
 
     const opts = this.#opts;
@@ -188,20 +155,23 @@ export default class DotHttp {
 
     options.url = fixUpUrl(url ?? '', (opts as DotHttpInit).baseUrl);
 
-    if (body instanceof FormData)
+    if (options.body instanceof FormData)
       (options.headers as any)['Content-Type'] = "multipart/form-data";
-    else if (body instanceof Object)
+    else if (options.body instanceof Object)
       (options.headers as any)['Content-Type'] = "application/json";
-    else if (body instanceof File) {
+    else if ((options.body as any) instanceof Blob) {
       (options.headers as any)['Content-Type'] = "multipart/form-data";
       const form = new FormData()
-      form.append("file", body);
-      form.append("fileName", body.name);
-      body = form
+      form.append("content", options.body as any);
+
+      if((options.body as any) instanceof File)
+        form.append("fileName", ((options.body as any) as File).name);
+        
+      options.body = form
     }
 
-    if (body)
-      options.body = body instanceof FormData ? body : JSON.stringify(body ?? null);
+    if (options.body instanceof Object)
+      options.body = options.body instanceof FormData ? options.body : JSON.stringify(options.body ?? null);
 
     let afterOnSend = onSend?.(options)
 
@@ -251,13 +221,21 @@ export default class DotHttp {
         const partStr = `${encodeURIComponent(part?.toString() ?? '')}`,
           pathStr = path.join('/');
 
-        if (partStr in instance) {
+        if (["get", "post", "put", "patch", "delete"].includes(partStr)) {
 
           const propValue = (instance as any)[partStr];
 
           if (typeof propValue === "function") {
-            return (...args: any[]) => {
-              const result = propValue.call(instance, pathStr, ...args);
+            return ([send, options]: any[]) => {
+              if(["get", "delete"].includes(partStr))
+                options.query = send
+              else if(send)
+                options.body = send;
+              else{
+                options.body = options.data;
+                delete options.data;
+              }
+              const result = propValue.call(instance, pathStr, options);
               return result === instance ? r : result;
             };
           }
