@@ -45,7 +45,8 @@ it('Should post data', async function () {
 });
 
 it('Should post data with query params', async function () {
-    const post = await $endpointBase.withQuery({test: 1}).post<Post>({ title: 'test' }, {
+    const post = await $endpointBase.post<Post>({ title: 'test' }, {
+        query: {test: 1},
         onSend({ url }) {
             const builtinUrl = endpointTestPath + `?test=1`;
             expect(url).toBe(builtinUrl);

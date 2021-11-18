@@ -223,32 +223,40 @@ export default class DotHttp {
 
         if (["get", "post", "put", "patch", "delete"].includes(partStr)) {
 
-          const propValue = (instance as any)[partStr];
-
-          if (typeof propValue === "function") {
-            return ([send, options]: any[]) => {
+            return (...[send, options = {} as any]) => {
+              let query: string;
               if(["get", "delete"].includes(partStr))
-                options.query = send
-              else if(send)
-                options.body = send;
+                query = send
               else{
-                options.body = options.data;
-                delete options.data;
+                query = options.query;
+                delete options.query
+                  if(send)
+                    options.body = send;
+                  else{
+                    options.body = options.data;
+                    delete options.data;
+                }
               }
-              const result = propValue.call(instance, pathStr, options);
-              return result === instance ? r : result;
+
+              let url = fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl),
+                queryString = toQuery(query ?? {});
+
+              if(queryString.trim() !== '?')
+                url += queryString
+
+              return instance.doRequest(partStr, url, options)
             };
-          }
-
-          return propValue
         }
 
-        if (part === "$path") {
-          return fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl);
-        }
+        const propValue = (instance as any)[partStr];
+
+        if(typeof propValue === 'function')
+          return propValue;
+
+        if (part === "$path") 
+          return fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl);        
 
         return new Proxy([...path, part?.toString()] as string[], this as ProxyHandler<string[]>);
-
       }
 
     }) as any as DotHttperInstance
