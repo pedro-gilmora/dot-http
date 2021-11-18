@@ -12,7 +12,6 @@
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
     - [💥 Error capture](#-error-capture)
     - [🔩 BTW... we can transform typed results](#-btw-we-can-transform-typed-results)
-    - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters-1)
   - [API](#api)
     - [**`DotHttp` instance**](#dothttp-instance)
     - [**Request extra-config**](#request-extra-config)
@@ -126,7 +125,7 @@ Query parameters objects will be serialized as query string.
 const queryParams = { a: 'b', b: 2, c: true, d: new Date(), e: null },
     id = 1;
 
-const filtered = await $endpointBase[id].get<Post[]>(queryParams, { 
+const filtered = await $endpointBase[id].get<Post>(queryParams, { 
     // Tadaa: We have the ability to intercept the request before send it... 👏👏👏
     onSend({ url }) { 
         console.log(url);
@@ -244,55 +243,6 @@ We'll get this
     }
 ]
 ```
-
-</td>
-</tr>
-</table>
-
-<br/>
-
-  ### 🍬 With `async`/`await` approach and query parameters...
-
-Query parameters objects will be serialized as query string.
-```ts
-const queryParams = { a: 'b', b: 2, c: true, d: new Date(), e: null },
-    id = 1;
-
-const filtered = await $endpointBase[id].get<Post[]>(queryParams, { 
-    // Tadaa: We have the ability to intercept the request before send it... 👏👏👏
-    onSend({ url }) { 
-        console.log(url);
-    }
-});
-```
-
-<table>
-<tr>
-<td align=right>
-  
-  Url
-
-</td>
-<td>
-
-  ```https://my-json-server.typicode.com/typicode/demo/posts?a=b&b=2&c=true&d=2021-11-07T16%3A42%3A16.631Z&e=```
-
-</td>
-</tr>
-<tr>
-<td align=right valign=top>
-  
-  Response
-  
-</td>
-<td>
-
-  ```json
-{
-    "id": 1,
-    "title": "Post 1"
-}
-  ```
 
 </td>
 </tr>
