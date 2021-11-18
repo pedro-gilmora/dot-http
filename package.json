@@ -9,7 +9,8 @@
     "save" : "git pull & git push",
     "clean": "rmdir /S /Q dist",
     "build": "tsc & copy Readme.md dist\\ReadMe.md & copy package.json dist\\package.json",
-    "upload": "pnpm save & pnpm test & pnpm build & pnpm publish dist"
+    "deploy": "pnpm build & pnpm publish dist",
+    "upload": "pnpm save & pnpm test & pnpm deploy"
   },
   "author": "pedro.gilmora@outlook.es",
   "license": "ISC",
