@@ -42,4 +42,3 @@ export function merge<T extends object>(
   }
   return left;
 }
-;

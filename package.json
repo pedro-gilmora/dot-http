@@ -10,7 +10,7 @@
     "clean": "rmdir /S /Q dist",
     "build": "tsc & copy Readme.md dist\\ReadMe.md & copy package.json dist\\package.json",
     "deploy": "pnpm build & pnpm publish dist",
-    "upload": "pnpm save & pnpm test & pnpm deploy"
+    "upload": "pnpm clean & pnpm save & pnpm test & pnpm deploy"
   },
   "author": "pedro.gilmora@outlook.es",
   "license": "ISC",

@@ -17,18 +17,30 @@ export type DotHttpInitOf<T, TransformedType = unknown> = RequestInit & DefautlD
   transform?: (v: T) => TransformedType
 };
 
-export type DotHttperInstance = {
+export type DotHttpAsyncInstance = {
+  $path: Promise<string>;
   get<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
   post<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
   put<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
   patch<T, TransformedT = T>(data?: Partial<T>, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
   delete<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
-  withOptions(arg: DotHttpInit): DotHttperInstance;
-  withQuery(arg: Record<string, any>): DotHttperInstance;
-  $path: string;
+  withOptions(arg: DotHttpInit): DotHttpAsyncInstance;
+  withQuery(arg: Record<string, any>): DotHttpAsyncInstance;
 } & {
-  [x: string | number]: DotHttperInstance
-};
+  [x: string | number]: DotHttpAsyncInstance
+}
+export type DotHttpInstance = {
+  $path: string;
+  get<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
+  post<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  put<T, TransformedT = T>(data?: T, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  patch<T, TransformedT = T>(data?: Partial<T>, init?: DotHttpInitOf<T, TransformedT>): Promise<TransformedT>;
+  delete<T, TransformedType = T>(query?: Record<string, any>, init?: DotHttpInitOf<T, TransformedType>): Promise<TransformedType>;
+  withOptions(arg: DotHttpInit): DotHttpInstance;
+  withQuery(arg: Record<string, any>): DotHttpInstance;
+} & {
+  [x: string | number]: DotHttpInstance
+}
 
 const throttleDetect = /\$Throttle.*?\((.*?)\)/gm;
 
@@ -81,8 +93,8 @@ export function fixUpUrl(url: string, baseUrl: string | undefined = undefined) {
   return url;
 }
 
-async function throttleUp(options: DotHttpInit, callingPoint: string, ms: number){
-  const 
+async function throttleUp(options: DotHttpInit, callingPoint: string, ms: number) {
+  const
     controller = throttlingMap[callingPoint] ?? (throttlingMap[callingPoint] = {}),
     current = Date.now();
 
@@ -91,19 +103,19 @@ async function throttleUp(options: DotHttpInit, callingPoint: string, ms: number
   controller[current] = new AbortController();
 
   // console.log("Last registry:", lastThrottling);
-    
-  if(controller[lastThrottling]){
+
+  if (controller[lastThrottling]) {
     controller[lastThrottling].abort();
   }
-  
+
   options.signal = controller[current].signal
 
   await sleep(ms);
 
-  try{
+  try {
     return await fetch(options.url!, options);
   }
-  catch(e){
+  catch (e) {
     throw e;
   }
   finally {
@@ -123,37 +135,41 @@ const throttlingMap = {} as ThrottlingRegistry;
 
 export default class DotHttp {
 
-  #opts: DotHttpInit | (() => Promise<DotHttpInit>) = null as any;
+  #opts: string | DotHttpInit |  (() => Promise<string | DotHttpInit>);
 
-  constructor(opts?: any) {
+  constructor(opts?: string | DotHttpInit | (() => Promise<string | DotHttpInit>)) {
     this.#opts = opts ?? {};
   }
 
-  getUrl(url: string) {
-    return url
-  }
-
   private async doRequest(
-    method: string, 
-    url: string, 
-    {onSend, query, throttle, baseUrl, transform, ...options}: DotHttpInit
+    method: string,
+    pathAndQuery: string,
+    { onSend, query, throttle, baseUrl, transform, ...options }: DotHttpInit
   ): Promise<any> {
 
-    const opts = this.#opts;
-
-    if (typeof opts === 'function')
-      this.#opts = await opts();
+    let opts = await this.resolveOptions();
 
     options = options ?? {};
 
     delete options.method;
 
+    if (options.headers instanceof Headers)
+      options.headers = Object.fromEntries(options.headers.entries())
+
+    if (opts.headers instanceof Headers)
+      opts.headers = Object.fromEntries(opts.headers.entries())
+
+    if (!opts.headers)
+      opts.headers = {};
+    if (!options.headers)
+      options.headers = {};
+
     options = merge({
       method,
-      headers: (opts as DotHttpInit).headers ?? {},
-    }, options ?? {});
+      ...opts,
+    }, options);
 
-    options.url = fixUpUrl(url ?? '', (opts as DotHttpInit).baseUrl);
+    options.url = fixUpUrl(pathAndQuery ?? '', (opts as DotHttpInit).baseUrl);
 
     if (options.body instanceof FormData)
       (options.headers as any)['Content-Type'] = "multipart/form-data";
@@ -164,9 +180,9 @@ export default class DotHttp {
       const form = new FormData()
       form.append("content", options.body as any);
 
-      if((options.body as any) instanceof File)
+      if ((options.body as any) instanceof File)
         form.append("fileName", ((options.body as any) as File).name);
-        
+
       options.body = form
     }
 
@@ -181,9 +197,9 @@ export default class DotHttp {
 
     const callingPoint = (new Error().stack?.split(throttleDetect)?.[1] ?? '').trim();
 
-    const response = (callingPoint && throttle 
-      ? await throttleUp(options, callingPoint, throttle) 
-      : await fetch(options.url!, options) );
+    const response = (callingPoint && throttle
+      ? await throttleUp(options, callingPoint, throttle)
+      : await fetch(options.url!, options));
 
     let result: any
 
@@ -209,56 +225,67 @@ export default class DotHttp {
     throw new FetchError(code, message, result);
   }
 
-  static create(init: string | DotHttpInit | Promise<DotHttpInit>) {
+  private async resolveOptions() {
+    if (typeof this.#opts === 'function') {
+      this.#opts = await this.#opts();
+      return this.#opts = (typeof this.#opts === "string") ? ({ baseUrl: this.#opts }) : this.#opts;
+    }
+    return Promise.resolve(this.#opts as DotHttpInit);
+  }
 
-    const instance = new DotHttp(typeof init === 'string' ? {baseUrl: init} : init);
+  static create<T extends string | DotHttpInit | (() => Promise<string | DotHttpInit>)>(init: T) : (T extends () => Promise<string | DotHttpInit> ? DotHttpAsyncInstance : DotHttpInstance){
+
+    const instance = new DotHttp(typeof init === 'string' ? { baseUrl: init } : init),
+      isAsyncConfig = typeof init === 'function';
 
     return new Proxy([] as string[], {
 
       // @ts-ignore
-      get(path, part: string | number, r: any) {
+      get(path, part: string | number) {
 
         const partStr = `${encodeURIComponent(part?.toString() ?? '')}`,
           pathStr = path.join('/');
 
         if (["get", "post", "put", "patch", "delete"].includes(partStr)) {
 
-            return (...[send, options = {} as any]) => {
-              let query: string;
-              if(["get", "delete"].includes(partStr))
-                query = send
-              else{
-                query = options.query;
-                delete options.query
-                  if(send)
-                    options.body = send;
-                  else{
-                    options.body = options.data;
-                    delete options.data;
-                }
+          return (async (...[send, options = {} as any]) => {
+            let query: string;
+            if (["get", "delete"].includes(partStr))
+              query = send
+            else {
+              query = options.query;
+              delete options.query
+              if (send)
+                options.body = send;
+              else {
+                options.body = options.data;
+                delete options.data;
               }
+            }
 
-              let url = fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl),
-                queryString = toQuery(query ?? {});
+            let queryString = toQuery(query ?? {}),
+              url = pathStr + (queryString.trim() !== '?' ? queryString : '');
 
-              if(queryString.trim() !== '?')
-                url += queryString
-
-              return instance.doRequest(partStr, url, options)
-            };
+            return instance.doRequest(partStr, url, options)
+          });
         }
 
         const propValue = (instance as any)[partStr];
 
-        if(typeof propValue === 'function')
+        if (typeof propValue === 'function')
           return propValue;
 
-        if (part === "$path") 
-          return fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl);        
+        if (part === "$path"){
+          if(isAsyncConfig)
+            return instance.resolveOptions().then(opts => 
+              fixUpUrl(pathStr, opts.baseUrl)
+            );
+          return fixUpUrl(pathStr, (instance.#opts as DotHttpInit).baseUrl);
+        }
 
         return new Proxy([...path, part?.toString()] as string[], this as ProxyHandler<string[]>);
       }
 
-    }) as any as DotHttperInstance
+    }) as any
   }
 }

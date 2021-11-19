@@ -7,6 +7,7 @@
   - [💁‍♂️ Why?](#️-why)
   - [🔨 Let's make it work easy](#-lets-make-it-work-easy)
     - [📝 In the beginning...](#-in-the-beginning)
+    - [📝 Also it allows async configuration resolver...](#-also-it-allows-async-configuration-resolver)
     - [🌈 Types...](#-types)
     - [⚡ With Callback approach](#-with-callback-approach)
     - [🍬 With `async`/`await` approach and query parameters...](#-with-asyncawait-approach-and-query-parameters)
@@ -32,10 +33,21 @@ I just love self-constructive objects. So, why not to create a **dynamical self-
 
 ### 📝 In the beginning...
 ```ts
-import api from "dot-http";
+import DotHttp from "dot-http";
 
 const 
-    $api = api.create(`https://my-json-server.typicode.com`),
+    $api = DotHttp.create(`https://my-json-server.typicode.com`),
+    restPathParamProp = 'posts',
+    $endpointBase = $api.typicode.demo[ restPathParamProp ];
+...
+```
+
+### 📝 Also it allows async configuration resolver...
+```ts
+import DottHttp from "dot-http";
+
+const 
+    $api = DotHttp.create(() => sleep(100).then(() => `https://my-json-server.typicode.com`)) // with async-resolver function,
     restPathParamProp = 'posts',
     $endpointBase = $api.typicode.demo[ restPathParamProp ];
 ...
@@ -266,12 +278,13 @@ We'll get this
   <td valign=top >
 
 ```ts
-$path: string
+$path: string | Promise<string>
 ```
 
   </td>
   <td valign="top">
-    <h3><i>Retrieve the built-in URL path</i></h3>
+    <h3><i>Retrieve the generated URL</i></h3>
+    <h5>* In case you created the instance with a async-resolver function, `$path` will return asynchronously the generated URL </h5>
   </td>
   </tr>
   <tr>

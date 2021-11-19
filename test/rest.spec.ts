@@ -3,21 +3,24 @@ import './mocks';
 import DotHttp from "../";
 import { FetchError } from '../errors';
 import { Post, User, UserPost } from './types';
+import { sleep } from '../utils';
 
-const $api = DotHttp.create(`https://my-json-server.typicode.com`) // returns a type DotHttpInstance;
+let $api = DotHttp.create(() => sleep(100).then(() => `https://my-json-server.typicode.com`)); // returns a type DotHttpInstance;
 
 const
     paramRestProp = 'posts',
     $endpointBase = $api.typicode.demo[paramRestProp],
     endpointTestPath = 'https://my-json-server.typicode.com/typicode/demo/posts';
 
-it('URL should be built-in properly', function () {
-    expect($endpointBase.$path).toBe(endpointTestPath);
+    $api
+
+it('URL should be built-in properly with', function () {
+    expect($endpointBase.$path).resolves.toBe(endpointTestPath);
 });
 
 it('Should work with dynamic keys', function () {
     const dynProp = 'dynamic';
-    expect($endpointBase[dynProp].$path).toBe(`${endpointTestPath}/dynamic`);
+    expect($endpointBase[dynProp].$path).resolves.toBe(`${endpointTestPath}/dynamic`);
 })
 
 it('Should fetch typed result with callback', function () {
@@ -33,7 +36,6 @@ it('Should fetch typed result with async/await and generate query params', async
         onSend({ url }) {
             const builtinUrl = endpointTestPath + `/1?a=b&b=2&c=true&d=${encodeURIComponent(d.toJSON())}&e=`;
             expect(url).toBe(builtinUrl);
-            console.log(url)
         }
     });
     expect(posts).toStrictEqual({"id": 1, "title": "Post 1"})

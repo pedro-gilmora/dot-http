@@ -8,7 +8,7 @@
             "command": "pnpm test",
             "name": "Debug test",
             "request": "launch",
-            "type": "node-terminal"
+            "type": "node-terminal",
         }
     ]
 }
